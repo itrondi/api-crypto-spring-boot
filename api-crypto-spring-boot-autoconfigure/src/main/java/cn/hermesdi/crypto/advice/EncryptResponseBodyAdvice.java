@@ -43,7 +43,7 @@ public class EncryptResponseBodyAdvice implements ResponseBodyAdvice<Object>, Se
             return false;
         }
 
-        if (Objects.nonNull(apiCryptoAlgorithms)) {
+        if (Objects.nonNull(apiCryptoAlgorithms) && !apiCryptoAlgorithms.isEmpty()) {
             logger.debug("【ApiCrypto】 all Encrypt Algorithm : [" + apiCryptoAlgorithms + "]");
 
             for (ApiCryptoAlgorithm a : apiCryptoAlgorithms) {

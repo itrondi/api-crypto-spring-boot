@@ -19,7 +19,7 @@ public interface IApiResponseBody {
      * @param annotation: 执行注解
      * @param cryptoBody: 响应数据
      * @return java.lang.Object 响应体
-     * @Author hermes·di
+     * @author hermes-di
      */
     Object responseBody(Annotation annotation, ApiCryptoBody cryptoBody);
 }

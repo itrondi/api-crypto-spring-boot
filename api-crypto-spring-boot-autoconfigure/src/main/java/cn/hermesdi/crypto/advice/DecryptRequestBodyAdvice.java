@@ -41,7 +41,7 @@ public class DecryptRequestBodyAdvice implements RequestBodyAdvice {
             return false;
         }
 
-        if (Objects.nonNull(apiCryptoAlgorithms)) {
+        if (Objects.nonNull(apiCryptoAlgorithms) && !apiCryptoAlgorithms.isEmpty()) {
             logger.debug("【ApiCrypto】 all Decrypt Algorithm : [" + apiCryptoAlgorithms + "]");
 
             for (ApiCryptoAlgorithm a : apiCryptoAlgorithms) {

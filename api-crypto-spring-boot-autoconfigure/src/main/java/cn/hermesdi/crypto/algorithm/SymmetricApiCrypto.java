@@ -14,6 +14,7 @@ import cn.hermesdi.crypto.util.RandomStrUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.MediaType;
@@ -38,18 +39,37 @@ public class SymmetricApiCrypto implements ApiCryptoAlgorithm {
 
     private static final Log logger = LogFactory.getLog(SymmetricApiCrypto.class);
 
-    private final ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    private final IApiRequestBody iApiRequestBody;
+    @Autowired
+    private ApiCryptoConfig apiCryptoConfig;
 
-    private final IApiResponseBody iApiResponseBody;
+    private IApiRequestBody iApiRequestBody;
 
-    private final ApiCryptoConfig apiCryptoConfig;
+    private IApiResponseBody iApiResponseBody;
+
+    public SymmetricApiCrypto() {
+    }
 
     public SymmetricApiCrypto(ApiCryptoConfig apiCryptoConfig, ObjectMapper objectMapper, IApiRequestBody iApiRequestBody, IApiResponseBody iApiResponseBody) {
         this.apiCryptoConfig = apiCryptoConfig;
         this.objectMapper = objectMapper;
         this.iApiRequestBody = iApiRequestBody;
+        this.iApiResponseBody = iApiResponseBody;
+    }
+
+    public SymmetricApiCrypto(ObjectMapper objectMapper, IApiRequestBody iApiRequestBody, IApiResponseBody iApiResponseBody) {
+        this.objectMapper = objectMapper;
+        this.iApiRequestBody = iApiRequestBody;
+        this.iApiResponseBody = iApiResponseBody;
+    }
+
+    public SymmetricApiCrypto(IApiRequestBody iApiRequestBody) {
+        this.iApiRequestBody = iApiRequestBody;
+    }
+
+    public SymmetricApiCrypto(IApiResponseBody iApiResponseBody) {
         this.iApiResponseBody = iApiResponseBody;
     }
 

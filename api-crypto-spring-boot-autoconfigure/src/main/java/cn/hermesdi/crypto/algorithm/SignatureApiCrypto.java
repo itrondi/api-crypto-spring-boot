@@ -12,6 +12,7 @@ import cn.hermesdi.crypto.ov.IApiResponseBody;
 import cn.hermesdi.crypto.util.RandomStrUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.MediaType;
@@ -36,18 +37,37 @@ public class SignatureApiCrypto implements ApiCryptoAlgorithm {
 
     private static final Log logger = LogFactory.getLog(SignatureApiCrypto.class);
 
-    private final ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    private final IApiRequestBody iApiRequestBody;
+    @Autowired
+    private ApiCryptoConfig apiCryptoConfig;
 
-    private final IApiResponseBody iApiResponseBody;
+    private IApiRequestBody iApiRequestBody;
 
-    private final ApiCryptoConfig apiCryptoConfig;
+    private IApiResponseBody iApiResponseBody;
+
+    public SignatureApiCrypto() {
+    }
 
     public SignatureApiCrypto(ApiCryptoConfig apiCryptoConfig, ObjectMapper objectMapper, IApiRequestBody iApiRequestBody, IApiResponseBody iApiResponseBody) {
         this.apiCryptoConfig = apiCryptoConfig;
         this.objectMapper = objectMapper;
         this.iApiRequestBody = iApiRequestBody;
+        this.iApiResponseBody = iApiResponseBody;
+    }
+
+    public SignatureApiCrypto(ObjectMapper objectMapper, IApiRequestBody iApiRequestBody, IApiResponseBody iApiResponseBody) {
+        this.objectMapper = objectMapper;
+        this.iApiRequestBody = iApiRequestBody;
+        this.iApiResponseBody = iApiResponseBody;
+    }
+
+    public SignatureApiCrypto(IApiRequestBody iApiRequestBody) {
+        this.iApiRequestBody = iApiRequestBody;
+    }
+
+    public SignatureApiCrypto(IApiResponseBody iApiResponseBody) {
         this.iApiResponseBody = iApiResponseBody;
     }
 

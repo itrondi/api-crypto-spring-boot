@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.*;
 import org.bouncycastle.util.encoders.Hex;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -27,12 +28,24 @@ import java.util.Objects;
 public class DigestApiCrypto implements ApiCryptoAlgorithm {
     private static final Log logger = LogFactory.getLog(DigestApiCrypto.class);
 
-    private final ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    private final IApiResponseBody iApiResponseBody;
+    private IApiResponseBody iApiResponseBody;
+
+    public DigestApiCrypto() {
+    }
+
+    public DigestApiCrypto(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     public DigestApiCrypto(ObjectMapper objectMapper, IApiResponseBody iApiResponseBody) {
         this.objectMapper = objectMapper;
+        this.iApiResponseBody = iApiResponseBody;
+    }
+
+    public DigestApiCrypto(IApiResponseBody iApiResponseBody) {
         this.iApiResponseBody = iApiResponseBody;
     }
 
@@ -104,6 +117,6 @@ public class DigestApiCrypto implements ApiCryptoAlgorithm {
         }
 
         // 使用默认响应体
-        return apiCryptoBody;
+        return this.responseBody(apiCryptoBody, objectMapper, logger);
     }
 }

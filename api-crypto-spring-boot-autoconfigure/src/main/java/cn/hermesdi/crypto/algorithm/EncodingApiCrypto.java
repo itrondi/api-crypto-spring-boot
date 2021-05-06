@@ -12,6 +12,7 @@ import cn.hermesdi.crypto.ov.IApiResponseBody;
 import cn.hermesdi.crypto.util.EncodingUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.MediaType;
@@ -19,6 +20,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.util.StringUtils;
+
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
@@ -33,14 +35,43 @@ import java.util.Objects;
 public class EncodingApiCrypto implements ApiCryptoAlgorithm {
     private static final Log logger = LogFactory.getLog(EncodingApiCrypto.class);
 
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    private final ObjectMapper objectMapper;
+    @Autowired
+    private ApiCryptoConfig apiCryptoConfig;
 
-    private final IApiRequestBody iApiRequestBody;
+    private IApiRequestBody iApiRequestBody;
 
-    private final IApiResponseBody iApiResponseBody;
+    private IApiResponseBody iApiResponseBody;
 
-    private final ApiCryptoConfig apiCryptoConfig;
+
+    public EncodingApiCrypto() {
+    }
+
+    public EncodingApiCrypto(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
+    public EncodingApiCrypto(ObjectMapper objectMapper, IApiRequestBody iApiRequestBody, IApiResponseBody iApiResponseBody) {
+        this.objectMapper = objectMapper;
+        this.iApiRequestBody = iApiRequestBody;
+        this.iApiResponseBody = iApiResponseBody;
+    }
+
+    public EncodingApiCrypto(IApiRequestBody iApiRequestBody, IApiResponseBody iApiResponseBody) {
+        this.iApiRequestBody = iApiRequestBody;
+        this.iApiResponseBody = iApiResponseBody;
+    }
+
+    public EncodingApiCrypto(IApiRequestBody iApiRequestBody) {
+        this.iApiRequestBody = iApiRequestBody;
+    }
+
+    public EncodingApiCrypto(IApiResponseBody iApiResponseBody) {
+        this.iApiResponseBody = iApiResponseBody;
+    }
+
 
     public EncodingApiCrypto(ApiCryptoConfig apiCryptoConfig, ObjectMapper objectMapper, IApiRequestBody iApiRequestBody, IApiResponseBody iApiResponseBody) {
         this.apiCryptoConfig = apiCryptoConfig;
