@@ -3,20 +3,22 @@ package cn.hermesdi.crypto.util;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * @Author hermes·di
- * @Date 2020/7/6 0006 23:37
- * @Describe 随机字符串工具类
+ * 随机字符串工具类
+ *
+ * @author hermes-di
+ * @since 1.0.0.RELEASE
  */
 public class RandomStrUtil {
 
-    public static final String BASE_CHAR_NUMBER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    public static final String BASE_CHAR_NUMBER = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
     /**
      * 随机生成指定位数的数字字符串
      *
      * @param length: 长度
-     * @Author hermes·di
-     */
+     * @return java.lang.String 生成的字符串
+     * @author hermes-di
+     **/
     public static String getRandomNumber(int length) {
         final StringBuilder sb = new StringBuilder(length);
         if (length < 1) {

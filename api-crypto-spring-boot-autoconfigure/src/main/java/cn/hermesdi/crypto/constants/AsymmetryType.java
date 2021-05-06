@@ -1,9 +1,10 @@
 package cn.hermesdi.crypto.constants;
 
 /**
- * @Author hermes·di
- * @Date 2021/4/27 19:58
- * @Describe 非对称性 加密/解密 类型
+ * 非对称性 加密/解密 类型枚举
+ *
+ * @author hermes-di
+ * @since 1.0.0.RELEASE
  */
 public enum AsymmetryType {
 

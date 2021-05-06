@@ -7,9 +7,10 @@ import cn.hermesdi.crypto.constants.EncodingType;
 import java.lang.annotation.*;
 
 /**
- * @Author hermes·di
- * @Date 2021/4/26 10:54
- * @Describe 编码注解
+ * 编码注解
+ *
+ * @author hermes-di
+ * @since 1.0.0.RELEASE
  */
 
 @Target({ElementType.METHOD, ElementType.TYPE})
@@ -23,7 +24,8 @@ public @interface EncodingCrypto {
      * <p>
      * 默认为配置文件配置的编码类型
      *
-     * @Author hermes·di
-     */
+     * @return cn.hermesdi.crypto.constants.EncodingType 编码 类型枚举
+     * @author hermes-di
+     **/
     EncodingType encodingType() default EncodingType.DEFAULT;
 }

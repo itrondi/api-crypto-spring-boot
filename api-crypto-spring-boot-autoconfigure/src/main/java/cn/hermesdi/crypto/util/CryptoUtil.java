@@ -14,9 +14,10 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Objects;
 
 /**
- * @Author hermes·di
- * @Date 2021/4/19 0019 11:50
- * @Describe 加密、解密 工具类
+ * 加密、解密 工具类
+ *
+ * @author hermes-di
+ * @since 1.0.0.RELEASE
  */
 public class CryptoUtil {
 
@@ -25,13 +26,13 @@ public class CryptoUtil {
     }
 
     /**
-     * 摘要实现
+     * 摘要算法实现
      *
      * @param digest:  加密方式
      * @param content: 加密内容
-     * @return java.lang.String
-     * @Author hermes·di
-     */
+     * @return byte[] 字节数组
+     * @author hermes-di
+     **/
     public static byte[] digest(Digest digest, String content) {
         byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
         digest.update(bytes, 0, bytes.length);
@@ -50,10 +51,9 @@ public class CryptoUtil {
      * @param content:      内容
      * @param encodingType: 内容编码类型
      * @param iv:           偏移量
-     * @return java.lang.String
-     * @Author hermes·di
-     * @Date 2021/4/27 18:23
-     */
+     * @return java.lang.String 加密/解密后文本
+     * @author hermes-di
+     **/
     public static String symmetric(String type, String method, int mode, String key, String content, EncodingType encodingType, String iv) throws Exception {
         SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), type);
         Cipher cipher = Cipher.getInstance(method, "BC");
@@ -92,15 +92,13 @@ public class CryptoUtil {
      * @param keyEncodingType:     key编码类型
      * @param content:             内容
      * @param contentEncodingType: 内容编码类型
-     * @return java.lang.String
-     * @Author hermes·di
-     * @Date 2021/4/27 18:20
-     */
+     * @return java.lang.String 加密/解密后文本
+     * @author hermes-di
+     **/
     public static String asymmetry(String type, String method, int mode, String key, EncodingType keyEncodingType, String content, EncodingType contentEncodingType) throws Exception {
         byte[] decodeKey = EncodingUtil.decode(keyEncodingType, key.getBytes(StandardCharsets.UTF_8));
-        if (Objects.isNull(decodeKey)) {
-            throw new Exception("The secret key is invalid.(秘钥无效)");
-        }
+
+        assert decodeKey != null;
 
         KeyFactory keyFactory = KeyFactory.getInstance(type, "BC");
         Cipher cipher = Cipher.getInstance(method, "BC");

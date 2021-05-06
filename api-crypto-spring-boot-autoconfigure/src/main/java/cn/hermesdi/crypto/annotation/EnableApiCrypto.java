@@ -8,9 +8,10 @@ import org.springframework.context.annotation.Import;
 import java.lang.annotation.*;
 
 /**
- * @Author hermes·di
- * @Date 2020/7/8 0008 11:48
- * @Describe 自动装配注解
+ * ApiCrypto 自动装配注解
+ *
+ * @author hermes-di
+ * @since 1.0.0.RELEASE
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

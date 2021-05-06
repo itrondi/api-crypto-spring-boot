@@ -7,9 +7,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * @Author hermes·di
- * @Date 2020/7/8 0008 9:30
- * @Describe 请求数据输入流转换
+ * 请求数据输入流转换
+ *
+ * @author hermes-di
+ * @since 1.0.0.RELEASE
  */
 public class InputMessage implements HttpInputMessage {
 

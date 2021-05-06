@@ -4,7 +4,6 @@ import cn.hermesdi.crypto.algorithm.ApiCryptoAlgorithm;
 import cn.hermesdi.crypto.annotation.NotDecrypt;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -17,19 +16,23 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @Author hermes·di
- * @Date 2020/7/6 0006 11:41
- * @Describe 请求解密类
+ * 请求解密类
+ *
+ * @author hermes-di
+ * @since 1.0.0.RELEASE
  */
 @ControllerAdvice
 public class DecryptRequestBodyAdvice implements RequestBodyAdvice {
 
     private static final Log logger = LogFactory.getLog(DecryptRequestBodyAdvice.class);
 
-    @Autowired(required = false)
-    private List<ApiCryptoAlgorithm> apiCryptoAlgorithms;
-
     private ApiCryptoAlgorithm apiCryptoAlgorithm;
+
+    private final List<ApiCryptoAlgorithm> apiCryptoAlgorithms;
+
+    public DecryptRequestBodyAdvice(List<ApiCryptoAlgorithm> apiCryptoAlgorithms) {
+        this.apiCryptoAlgorithms = apiCryptoAlgorithms;
+    }
 
     @Override
     public boolean supports(MethodParameter parameter, Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {

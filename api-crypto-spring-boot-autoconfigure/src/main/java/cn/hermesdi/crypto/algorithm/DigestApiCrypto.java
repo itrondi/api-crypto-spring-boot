@@ -1,10 +1,8 @@
 package cn.hermesdi.crypto.algorithm;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cn.hermesdi.crypto.annotation.digests.DigestsCrypto;
 import cn.hermesdi.crypto.bean.ApiCryptoBody;
-import cn.hermesdi.crypto.exception.ApiEncryptException;
 import cn.hermesdi.crypto.ov.IApiResponseBody;
 import cn.hermesdi.crypto.util.CryptoUtil;
 import org.apache.commons.logging.Log;
@@ -21,9 +19,10 @@ import org.springframework.http.server.ServerHttpResponse;
 import java.util.Objects;
 
 /**
- * @Author hermes·di
- * @Date 2021/4/16 0016 9:03
- * @Describe 摘要 实现
+ * 摘要加密 实现
+ *
+ * @author hermes-di
+ * @since 1.0.0.RELEASE
  */
 public class DigestApiCrypto implements ApiCryptoAlgorithm {
     private static final Log logger = LogFactory.getLog(DigestApiCrypto.class);
@@ -54,15 +53,7 @@ public class DigestApiCrypto implements ApiCryptoAlgorithm {
 
         DigestsCrypto annotation = this.getAnnotation(methodParameter, DigestsCrypto.class);
 
-        // 转成json字符串
-        String content;
-
-        try {
-            content = objectMapper.writeValueAsString(body);
-        } catch (JsonProcessingException e) {
-            logger.error("【Digests Crypto】 ResponseBody to json exception: " + e.getMessage());
-            throw new ApiEncryptException("【Digests Crypto】 ResponseBody to json exception: " + e.getMessage());
-        }
+        String json = responseBody(body, objectMapper, logger);
 
         Digest digest;
 
@@ -102,11 +93,10 @@ public class DigestApiCrypto implements ApiCryptoAlgorithm {
             }
         }
 
-        byte[] bytes = CryptoUtil.digest(digest, content);
+        byte[] bytes = CryptoUtil.digest(digest, json);
+        json = Hex.toHexString(bytes);
 
-        content = Hex.toHexString(bytes);
-
-        ApiCryptoBody apiCryptoBody = new ApiCryptoBody().setData(content);
+        ApiCryptoBody apiCryptoBody = new ApiCryptoBody().setData(json);
 
         // 使用自定义响应体
         if (iApiResponseBody != null) {

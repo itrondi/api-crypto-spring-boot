@@ -5,9 +5,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.io.Serializable;
 
 /**
- * @Author hermes·di
- * @Date 2020/7/8 0008 9:15
- * @Describe 响应体、请求体
+ * 响应体、请求体
+ *
+ * @author hermes-di
+ * @since 1.0.0.RELEASE
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiCryptoBody implements Serializable {

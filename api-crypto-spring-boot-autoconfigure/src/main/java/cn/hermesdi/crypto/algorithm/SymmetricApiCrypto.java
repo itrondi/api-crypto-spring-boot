@@ -1,17 +1,17 @@
 package cn.hermesdi.crypto.algorithm;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import cn.hermesdi.crypto.annotation.symmetric.SymmetricCrypto;
 import cn.hermesdi.crypto.bean.ApiCryptoBody;
-import cn.hermesdi.crypto.bean.InputMessage;
 import cn.hermesdi.crypto.config.ApiCryptoConfig;
 import cn.hermesdi.crypto.constants.EncodingType;
+import cn.hermesdi.crypto.exception.ApiCryptoExceptionType;
 import cn.hermesdi.crypto.exception.ApiDecodeException;
 import cn.hermesdi.crypto.exception.ApiEncryptException;
 import cn.hermesdi.crypto.ov.IApiRequestBody;
 import cn.hermesdi.crypto.ov.IApiResponseBody;
 import cn.hermesdi.crypto.util.CryptoUtil;
 import cn.hermesdi.crypto.util.RandomStrUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.MethodParameter;
@@ -23,16 +23,16 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.util.StringUtils;
 
 import javax.crypto.Cipher;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
- * @Author hermes·di
- * @Date 2021/4/15 0015 11:45
- * @Describe 对称性加密、解密 实现
+ * 对称性加密、解密 实现
+ *
+ * @author hermes-di
+ * @since 1.0.0.RELEASE
  */
 public class SymmetricApiCrypto implements ApiCryptoAlgorithm {
 
@@ -66,14 +66,16 @@ public class SymmetricApiCrypto implements ApiCryptoAlgorithm {
         ApiCryptoBody apiCryptoBody = this.requestBody(annotation, httpInputMessage, iApiRequestBody, objectMapper, logger);
 
         if (!StringUtils.hasText(apiCryptoBody.getData())) {
-            logger.error("【ApiCrypto】 The data does not exist, check the request body JSON “data” field. (数据不存在，请检查请求体JSON “data” 字段。)");
-            throw new ApiDecodeException("【ApiCrypto】 The data does not exist, check the request body JSON “data” field. (数据不存在，请检查请求体JSON “data” 字段。)");
+            ApiCryptoExceptionType exceptionType = ApiCryptoExceptionType.PARAM_DATA_MISSING;
+            logger.error(exceptionType.getMessage());
+            throw new ApiDecodeException(exceptionType);
         }
 
         if (annotation.type().isProduceIv()) {
             if (!StringUtils.hasText(apiCryptoBody.getIv())) {
-                logger.error("【ApiCrypto】 The required iv does not exist. Check the JSON “iv” field in the request body. (需要的iv不存在。检查请求正文中的JSON “iv” 字段。)");
-                throw new ApiDecodeException("【ApiCrypto】 The required iv does not exist. Check the JSON “iv” field in the request body. (需要的iv不存在。检查请求正文中的JSON “iv” 字段。)");
+                ApiCryptoExceptionType exceptionType = ApiCryptoExceptionType.PARAM_VI_MISSING;
+                logger.error(exceptionType.getMessage());
+                throw new ApiDecodeException(exceptionType);
             }
         } else {
             apiCryptoBody.setIv(null);
@@ -81,12 +83,13 @@ public class SymmetricApiCrypto implements ApiCryptoAlgorithm {
 
         String secretKey = secretKey(annotation);
 
-        String encryptData;
 
         EncodingType encodingType = apiCryptoConfig.getEncodingType();
         if (!annotation.encodingType().equals(EncodingType.DEFAULT)) {
             encodingType = annotation.encodingType();
         }
+
+        String encryptData;
 
         try {
 
@@ -101,37 +104,25 @@ public class SymmetricApiCrypto implements ApiCryptoAlgorithm {
             );
 
         } catch (Exception e) {
-            logger.error("【ApiCrypto】 The decryption request body failed.(解密请求 body 失败)， ERROR：" + e.getMessage());
-            throw new ApiEncryptException("【ApiCrypto】 The decryption request body failed.(解密请求 body 失败)，ERROR：" + e.getMessage());
+            ApiCryptoExceptionType exceptionType = ApiCryptoExceptionType.DECRYPTION_FAILED;
+            logger.error(exceptionType.getMessage() + " ERROR：" + e.getMessage());
+            throw new ApiDecodeException(exceptionType);
         }
 
         if (!StringUtils.hasText(encryptData)) {
-            logger.error("【ApiCrypto】 Data is empty after decryption.(解密后数据为空)");
-            throw new ApiEncryptException("【ApiCrypto】 Data is empty after decryption.(解密后数据为空)");
+            ApiCryptoExceptionType exceptionType = ApiCryptoExceptionType.DATA_EMPTY;
+            logger.error(exceptionType.getMessage());
+            throw new ApiDecodeException(exceptionType);
         }
 
-        try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(encryptData.getBytes(StandardCharsets.UTF_8));
-            return new InputMessage(inputStream, httpInputMessage.getHeaders());
-        } catch (Exception e) {
-            logger.error("【ApiCrypto】 Decryption data conversion to stream failed.（解密后的字符串转换为输入流失败）， ERROR：" + e.getMessage());
-            throw new ApiDecodeException("【ApiCrypto】 Decryption data conversion to stream failed.（解密后的字符串转换为输入流失败）， ERROR：" + e.getMessage());
-        }
+        return this.stringToInputStream(encryptData.getBytes(StandardCharsets.UTF_8), httpInputMessage.getHeaders(), logger);
     }
 
     @Override
     public Object responseBefore(Object body, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
         SymmetricCrypto annotation = this.getAnnotation(methodParameter, SymmetricCrypto.class);
 
-        // 转成json字符串
-        String content;
-
-        try {
-            content = objectMapper.writeValueAsString(body);
-        } catch (Exception e) {
-            logger.error("【ApiCrypto】 The response body conversion to JSON failed. Please respond to data correctly.(响应body转换JSON失败，请正确响应数据)， ERROR：" + e.getMessage());
-            throw new ApiEncryptException("【ApiCrypto】 The response body conversion to JSON failed. Please respond to data correctly.(响应body转换JSON失败，请正确响应数据)， ERROR：" + e.getMessage());
-        }
+        String json = responseBody(body, objectMapper, logger);
 
         String secretKey = secretKey(annotation);
 
@@ -145,28 +136,28 @@ public class SymmetricApiCrypto implements ApiCryptoAlgorithm {
             secretKey = annotation.SecretKey();
         }
 
-        String encryptData;
-
         EncodingType encodingType = apiCryptoConfig.getEncodingType();
         if (!annotation.encodingType().equals(EncodingType.DEFAULT)) {
             encodingType = annotation.encodingType();
         }
 
-        try {
+        String encryptData;
 
+        try {
             encryptData = CryptoUtil.symmetric(
                     annotation.type().getType(),
                     annotation.type().getMethod(),
                     Cipher.ENCRYPT_MODE,
                     secretKey,
-                    content,
+                    json,
                     encodingType,
                     iv
             );
 
         } catch (Exception e) {
-            logger.error("【ApiCrypto】 The encrypted response body failed.(加密响应body失败)，ERROR：" + e.getMessage());
-            throw new ApiEncryptException("【ApiCrypto】 The encrypted response body failed.(加密响应body失败)，ERROR：" + e.getMessage());
+            ApiCryptoExceptionType exceptionType = ApiCryptoExceptionType.ENCRYPTION_FAILED;
+            logger.error(exceptionType.getMessage() + " ERROR：" + e.getMessage());
+            throw new ApiEncryptException(exceptionType);
         }
 
         // 使用默认响应体
@@ -184,6 +175,13 @@ public class SymmetricApiCrypto implements ApiCryptoAlgorithm {
 
     }
 
+    /**
+     * 获取 秘钥
+     *
+     * @param annotation: 执行注解
+     * @return java.lang.String
+     * @author hermes-di
+     **/
     private String secretKey(SymmetricCrypto annotation) {
         String secretKey = apiCryptoConfig.getSymmetricKey().get(annotation.type().getType());
 
@@ -192,8 +190,9 @@ public class SymmetricApiCrypto implements ApiCryptoAlgorithm {
         }
 
         if (!StringUtils.hasText(secretKey)) {
-            logger.error("【ApiCrypto】 Invalid secret key. Please configure the secret key in the configuration file or comment.(无效的秘钥,请在配置文件或注解中秘钥配置)");
-            throw new ApiEncryptException("【ApiCrypto】 Invalid secret key. Please configure the secret key in the configuration file or comment.(无效的秘钥,请在配置文件或注解中秘钥配置)");
+            ApiCryptoExceptionType exceptionType = ApiCryptoExceptionType.REQUIRED_CRYPTO_PARAM;
+            logger.error(exceptionType.getMessage() + " ERROR：(无效的秘钥,请在配置文件或注解中秘钥配置)");
+            throw new ApiEncryptException(exceptionType);
         }
         return secretKey;
     }

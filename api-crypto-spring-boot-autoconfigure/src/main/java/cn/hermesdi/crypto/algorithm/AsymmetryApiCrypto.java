@@ -11,10 +11,11 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 /**
- * @Author hermes·di
- * @Date 2021/4/27 19:48
- * @Describe 非对称性 加密、解密 实现
- */
+ * 非对称性 加密/解密 实现
+ *
+ * @author hermes-di
+ * @since 1.0.0.RELEASE
+ **/
 public class AsymmetryApiCrypto implements ApiCryptoAlgorithm {
     @Override
     public boolean isCanRealize(MethodParameter methodParameter, boolean requestOrResponse) {

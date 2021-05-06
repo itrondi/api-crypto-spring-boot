@@ -3,9 +3,10 @@ package cn.hermesdi.crypto.annotation;
 import java.lang.annotation.*;
 
 /**
- * @Author hermes·di
- * @Date 2020/7/6 0006 11:31
- * @Describe 忽略 解密/解密
+ * 忽略 解密/解密
+ *
+ * @author hermes-di
+ * @since 1.0.0.RELEASE
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)

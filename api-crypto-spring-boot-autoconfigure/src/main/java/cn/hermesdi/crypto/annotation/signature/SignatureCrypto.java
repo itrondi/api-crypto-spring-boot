@@ -6,9 +6,10 @@ import cn.hermesdi.crypto.constants.CryptoType;
 import java.lang.annotation.*;
 
 /**
- * @Author hermes·di
- * @Date 2021/4/20 0020 18:37
- * @Describe 签名注解
+ * 签名注解
+ *
+ * @author hermes-di
+ * @since 1.0.0.RELEASE
  */
 @Inherited
 @Target({ElementType.METHOD, ElementType.TYPE})
@@ -23,14 +24,16 @@ public @interface SignatureCrypto {
      * <p>
      * 小于等于 "0" 不限制
      *
-     * @Author hermes·di
-     */
+     * @return long
+     * @author hermes-di
+     **/
     long timeout() default 0L;
 
     /**
      * 自定义签名 秘钥（优先）
      *
-     * @Author hermes·di
-     */
+     * @return java.lang.String 字符串
+     * @author hermes-di
+     **/
     String SecretKey() default "";
 }

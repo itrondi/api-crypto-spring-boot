@@ -1,7 +1,9 @@
 package cn.hermesdi.crypto.util;
 
 import cn.hermesdi.crypto.constants.EncodingType;
+import cn.hermesdi.crypto.exception.ApiCryptoExceptionType;
 import cn.hermesdi.crypto.exception.ApiDecodeException;
+import cn.hermesdi.crypto.exception.ApiEncryptException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.util.encoders.Base64;
@@ -11,14 +13,23 @@ import org.bouncycastle.util.encoders.UrlBase64;
 import java.nio.charset.StandardCharsets;
 
 /**
- * @Author hermes·di
- * @Date 2021/4/26 11:27
- * @Describe 编码工具类
+ * 编码工具类
+ *
+ * @author hermes-di
+ * @since 1.0.0.RELEASE
  */
 public class EncodingUtil {
 
     private static final Log logger = LogFactory.getLog(EncodingUtil.class);
 
+    /**
+     * 编码实现
+     *
+     * @param encodingType: 编码类型
+     * @param encoding:     编码内容
+     * @return java.lang.String 编码字符串
+     * @author hermes-di
+     **/
     public static String encode(EncodingType encodingType, byte[] encoding) {
         try {
             switch (encodingType) {
@@ -32,12 +43,21 @@ public class EncodingUtil {
                     return new String(encoding);
             }
         } catch (Exception e) {
-            logger.error("【ApiCrypto】 Encoding failure.(编码失败) ERROR：" + e.getMessage());
-            throw new ApiDecodeException("【ApiCrypto】 Encoding failure.(编码失败) ERROR：" + e.getMessage());
+            ApiCryptoExceptionType exceptionType = ApiCryptoExceptionType.ENCODING_FAILED;
+            logger.error(exceptionType.getMessage() + " ERROR：" + e.getMessage());
+            throw new ApiEncryptException(exceptionType);
         }
         return null;
     }
 
+    /**
+     * 解码实现
+     *
+     * @param encodingType: 编码类型
+     * @param encoding:     编码内容
+     * @return byte[] 解码字节数组
+     * @author hermes-di
+     **/
     public static byte[] decode(EncodingType encodingType, byte[] encoding) {
         try {
             switch (encodingType) {
@@ -51,12 +71,21 @@ public class EncodingUtil {
                     return encoding;
             }
         } catch (Exception e) {
-            logger.error("【ApiCrypto】 Decoding failure.(解码失败) ERROR：" + e.getMessage());
-            throw new ApiDecodeException("【ApiCrypto】 Decoding failure.(解码失败) ERROR：" + e.getMessage());
+            ApiCryptoExceptionType exceptionType = ApiCryptoExceptionType.DECODING_FAILED;
+            logger.error(exceptionType.getMessage() + " ERROR：" + e.getMessage());
+            throw new ApiDecodeException(exceptionType);
         }
         return null;
     }
 
+    /**
+     * 解码实现
+     *
+     * @param encodingType: 编码类型
+     * @param encoding:     编码内容
+     * @return byte[] 解码字节数组
+     * @author hermes-di
+     **/
     public static byte[] decode(EncodingType encodingType, String encoding) {
         return decode(encodingType, encoding.getBytes(StandardCharsets.UTF_8));
     }

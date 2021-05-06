@@ -1,14 +1,33 @@
 package cn.hermesdi.crypto.exception;
 
 /**
- * @Author hermes·di
- * @Date 2020/7/6 0006 11:43
- * @Describe 加密异常类
+ * 加密异常类
+ *
+ * @author hermes-di
+ * @since 1.0.0.RELEASE
  */
 public class ApiEncryptException extends RuntimeException {
+    private ApiCryptoExceptionType exceptionType;
 
-    public ApiEncryptException(String e) {
-        super(e);
+    public ApiEncryptException(ApiCryptoExceptionType exceptionType) {
+        super(exceptionType.getMessage());
+        this.exceptionType = exceptionType;
+    }
+
+    public ApiEncryptException(String message) {
+        super(message);
+    }
+
+    public ApiEncryptException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public ApiEncryptException(Throwable cause) {
+        super(cause);
+    }
+
+    public ApiCryptoExceptionType getExceptionType() {
+        return exceptionType;
     }
 
 }

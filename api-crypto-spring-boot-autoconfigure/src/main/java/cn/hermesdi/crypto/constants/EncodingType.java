@@ -1,9 +1,10 @@
 package cn.hermesdi.crypto.constants;
 
 /**
- * @Author hermes·di
- * @Date 2021/4/26 11:30
- * @Describe 编码类型枚举
+ * 编码 类型枚举
+ *
+ * @author hermes-di
+ * @since 1.0.0.RELEASE
  */
 public enum EncodingType {
 

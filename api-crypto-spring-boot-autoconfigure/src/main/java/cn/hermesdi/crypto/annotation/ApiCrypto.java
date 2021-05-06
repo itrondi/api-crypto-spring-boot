@@ -5,9 +5,10 @@ import cn.hermesdi.crypto.constants.CryptoType;
 import java.lang.annotation.*;
 
 /**
- * @Author hermes·di
- * @Date 2021/4/15 0015 17:01
- * @Describe 加密、解密 标记注解
+ * 加密、解密 标记注解
+ *
+ * @author hermes-di
+ * @since 1.0.0.RELEASE
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
@@ -16,15 +17,17 @@ public @interface ApiCrypto {
     /**
      * 加密 类型（枚举）
      *
-     * @Author hermes·di
-     */
+     * @return cn.hermesdi.crypto.constants.CryptoType 加密解密 类型枚举（用于描述）
+     * @author hermes-di
+     **/
     CryptoType encryptType();
 
 
     /**
      * 解密 类型（枚举）
      *
-     * @Author hermes·di
-     */
+     * @return cn.hermesdi.crypto.constants.CryptoType 加密解密 类型枚举（用于描述）
+     * @author hermes-di
+     **/
     CryptoType decryptType();
 }

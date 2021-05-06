@@ -8,12 +8,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @Author hermes·di
- * @Date 2020/7/6 0006 11:42
- * @Describe 配置类
+ * 配置类
+ *
+ * @author hermes-di
+ * @since 1.0.0.RELEASE
  */
 @Configuration
-@ConfigurationProperties(prefix = "api.cn.hermesdi.crypto")
+@ConfigurationProperties(prefix = "api.crypto")
 public class ApiCryptoConfig {
     /**
      * 配置对称性密钥

@@ -1,12 +1,12 @@
 package cn.hermesdi.crypto.algorithm;
 
+import cn.hermesdi.crypto.exception.ApiCryptoExceptionType;
+import cn.hermesdi.crypto.exception.ApiEncryptException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cn.hermesdi.crypto.annotation.signature.SignatureCrypto;
 import cn.hermesdi.crypto.bean.ApiCryptoBody;
-import cn.hermesdi.crypto.bean.InputMessage;
 import cn.hermesdi.crypto.config.ApiCryptoConfig;
 import cn.hermesdi.crypto.exception.ApiDecodeException;
-import cn.hermesdi.crypto.exception.ApiEncryptException;
 import cn.hermesdi.crypto.ov.IApiRequestBody;
 import cn.hermesdi.crypto.ov.IApiResponseBody;
 import cn.hermesdi.crypto.util.RandomStrUtil;
@@ -21,16 +21,16 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
- * @Author hermes·di
- * @Date 2021/4/21 0021 22:25
- * @Describe 签名接口实现
+ * 签名 实现
+ *
+ * @author hermes-di
+ * @since 1.0.0.RELEASE
  */
 public class SignatureApiCrypto implements ApiCryptoAlgorithm {
 
@@ -61,16 +61,32 @@ public class SignatureApiCrypto implements ApiCryptoAlgorithm {
     public HttpInputMessage beforeBodyRead(HttpInputMessage httpInputMessage, MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) throws IOException {
         SignatureCrypto annotation = this.getAnnotation(methodParameter, SignatureCrypto.class);
 
-        ApiCryptoBody apiCryptoBody = this.requestBody(annotation,httpInputMessage, iApiRequestBody, objectMapper, logger);
+        ApiCryptoBody apiCryptoBody = this.requestBody(annotation, httpInputMessage, iApiRequestBody, objectMapper, logger);
 
-        if (!StringUtils.hasText(apiCryptoBody.getData()) ||
-                !StringUtils.hasText(apiCryptoBody.getNonce()) ||
-                !StringUtils.hasText(apiCryptoBody.getSignStr()) ||
-                Objects.isNull(apiCryptoBody.getTimestamp())
-        ) {
-            logger.error("【ApiCrypto】 Missing required parameters.(缺少必需的参数)");
-            throw new ApiDecodeException("【ApiCrypto】 Missing required parameters.(缺少必需的参数)");
+        if (!StringUtils.hasText(apiCryptoBody.getData())) {
+            ApiCryptoExceptionType exceptionType = ApiCryptoExceptionType.PARAM_DATA_MISSING;
+            logger.error(exceptionType.getMessage());
+            throw new ApiDecodeException(exceptionType);
         }
+
+        if (!StringUtils.hasText(apiCryptoBody.getNonce())) {
+            ApiCryptoExceptionType exceptionType = ApiCryptoExceptionType.PARAM_NONCE_MISSING;
+            logger.error(exceptionType.getMessage());
+            throw new ApiDecodeException(exceptionType);
+        }
+
+        if (Objects.isNull(apiCryptoBody.getTimestamp())) {
+            ApiCryptoExceptionType exceptionType = ApiCryptoExceptionType.PARAM_TIMESTAMP_MISSING;
+            logger.error(exceptionType.getMessage());
+            throw new ApiDecodeException(exceptionType);
+        }
+
+        if (!StringUtils.hasText(apiCryptoBody.getSignStr())) {
+            ApiCryptoExceptionType exceptionType = ApiCryptoExceptionType.PARAM_SIGN_MISSING;
+            logger.error(exceptionType.getMessage());
+            throw new ApiDecodeException(exceptionType);
+        }
+
 
         long timeout = apiCryptoConfig.getSignature().getTimeout();
         if (annotation.timeout() > 0) {
@@ -80,44 +96,38 @@ public class SignatureApiCrypto implements ApiCryptoAlgorithm {
         if (timeout > 0) {
             long time = (System.currentTimeMillis() / 1000) - apiCryptoBody.getTimestamp();
             if (time > timeout) {
-                logger.error("【ApiCrypto】 Signature timed out.(签名已超时)");
-                throw new ApiDecodeException("【ApiCrypto】 Signature timed out.(签名已超时)");
+                ApiCryptoExceptionType exceptionType = ApiCryptoExceptionType.SIGNATURE_TIMED_OUT;
+                logger.error(exceptionType.getMessage());
+                throw new ApiDecodeException(exceptionType);
             }
         }
 
-        // TODO 如果没有配置
         String secretKey = apiCryptoConfig.getSignature().getSecretKey();
+
         if (StringUtils.hasText(annotation.SecretKey())) {
             secretKey = annotation.SecretKey();
         }
 
-        if (!signature(apiCryptoBody, secretKey).equals(apiCryptoBody.getSignStr())) {
-            logger.error("【ApiCrypto】 Verify signature failed.(验证签名失败)");
-            throw new ApiDecodeException("【ApiCrypto】 Verify signature failed.(验证签名失败)");
+        if (!StringUtils.hasText(secretKey)) {
+            ApiCryptoExceptionType exceptionType = ApiCryptoExceptionType.REQUIRED_SIGNATURE_PARAM;
+            logger.error(exceptionType.getMessage());
+            throw new ApiDecodeException(exceptionType);
         }
 
-        try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(apiCryptoBody.getData().getBytes(StandardCharsets.UTF_8));
-            return new InputMessage(inputStream, httpInputMessage.getHeaders());
-        } catch (Exception e) {
-            logger.error("【ApiCrypto】 Verify data conversion to stream failed.（验证后的字符串转换为输入流失败）， ERROR：" + e.getMessage());
-            throw new ApiDecodeException("【ApiCrypto】 Verify data conversion to stream failed.（验证后的字符串转换为输入流失败）， ERROR：" + e.getMessage());
+        if (!signature(apiCryptoBody, secretKey).equals(apiCryptoBody.getSignStr())) {
+            ApiCryptoExceptionType exceptionType = ApiCryptoExceptionType.VERIFY_SIGNATURE_FAILED;
+            logger.error(exceptionType.getMessage());
+            throw new ApiDecodeException(exceptionType);
         }
+
+        return this.stringToInputStream(apiCryptoBody.getData().getBytes(StandardCharsets.UTF_8), httpInputMessage.getHeaders(), logger);
     }
 
     @Override
     public Object responseBefore(Object body, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
         SignatureCrypto annotation = this.getAnnotation(methodParameter, SignatureCrypto.class);
 
-        // 转成json字符串
-        String data;
-
-        try {
-            data = objectMapper.writeValueAsString(body);
-        } catch (Exception e) {
-            logger.error("【ApiCrypto】 The response body conversion to JSON failed. Please respond to data correctly.(响应body转换JSON失败，请正确响应数据)， ERROR：" + e.getMessage());
-            throw new ApiEncryptException("【ApiCrypto】 The response body conversion to JSON failed. Please respond to data correctly.(响应body转换JSON失败，请正确响应数据)， ERROR：" + e.getMessage());
-        }
+        String json = responseBody(body, objectMapper, logger);
 
         String secretKey = apiCryptoConfig.getSignature().getSecretKey();
         if (StringUtils.hasText(annotation.SecretKey())) {
@@ -125,7 +135,7 @@ public class SignatureApiCrypto implements ApiCryptoAlgorithm {
         }
 
         ApiCryptoBody apiCryptoBody = new ApiCryptoBody();
-        apiCryptoBody.setData(data);
+        apiCryptoBody.setData(json);
         apiCryptoBody.setNonce(RandomStrUtil.getRandomNumber(32));
         apiCryptoBody.setTimestamp(System.currentTimeMillis() / 1000);
         apiCryptoBody.setSignStr(signature(apiCryptoBody, secretKey));
@@ -140,18 +150,22 @@ public class SignatureApiCrypto implements ApiCryptoAlgorithm {
 
 
     /**
-     * 签名
-     *
      * @param apiCryptoBody: 签名数据
-     * @param secretKey:     密钥
+     * @param secretKey:     签名秘钥
      * @return java.lang.String
-     * @Author hermes·di
-     */
+     * @author hermes-di
+     **/
     private String signature(ApiCryptoBody apiCryptoBody, String secretKey) {
-        String str = "data=" + apiCryptoBody.getData() +
-                "&timestamp=" + apiCryptoBody.getTimestamp() +
-                "&nonce=" + apiCryptoBody.getNonce() +
-                "&key=" + secretKey;
-        return DigestUtils.md5DigestAsHex(str.getBytes(StandardCharsets.UTF_8));
+        try {
+            String str = "data=" + apiCryptoBody.getData() +
+                    "&timestamp=" + apiCryptoBody.getTimestamp() +
+                    "&nonce=" + apiCryptoBody.getNonce() +
+                    "&key=" + secretKey;
+            return DigestUtils.md5DigestAsHex(str.getBytes(StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            ApiCryptoExceptionType exceptionType = ApiCryptoExceptionType.SIGNATURE_FAILED;
+            logger.error(exceptionType.getMessage() + " ERROR：" + e.getMessage());
+            throw new ApiEncryptException(exceptionType);
+        }
     }
 }
