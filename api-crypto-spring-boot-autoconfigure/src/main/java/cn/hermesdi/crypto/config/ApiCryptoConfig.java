@@ -4,6 +4,8 @@ import cn.hermesdi.crypto.constants.EncodingType;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,9 +28,14 @@ public class ApiCryptoConfig {
     private Signature signature = new Signature();
 
     /**
-     * 配置全局编码类型
+     * 配置全局加密解密编码类型
      */
     private EncodingType encodingType = EncodingType.BASE64;
+
+    /**
+     * 配置全局加密解密处理字符集
+     */
+    private Charset charset = StandardCharsets.UTF_8;
 
 
     public Signature getSignature() {
@@ -37,6 +44,14 @@ public class ApiCryptoConfig {
 
     public void setSignature(Signature signature) {
         this.signature = signature;
+    }
+
+    public Charset getCharset() {
+        return charset;
+    }
+
+    public void setCharset(Charset charset) {
+        this.charset = charset;
     }
 
     public static class Signature {

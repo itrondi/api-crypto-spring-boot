@@ -10,7 +10,7 @@ import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
 import org.bouncycastle.util.encoders.UrlBase64;
 
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 
 /**
  * 编码工具类
@@ -83,11 +83,12 @@ public class EncodingUtil {
      *
      * @param encodingType: 编码类型
      * @param encoding:     编码内容
+     * @param charset:      字符集
      * @return byte[] 解码字节数组
      * @author hermes-di
      **/
-    public static byte[] decode(EncodingType encodingType, String encoding) {
-        return decode(encodingType, encoding.getBytes(StandardCharsets.UTF_8));
+    public static byte[] decode(EncodingType encodingType, String encoding, Charset charset) {
+        return decode(encodingType, encoding.getBytes(charset));
     }
 
 }

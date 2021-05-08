@@ -23,7 +23,6 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
@@ -49,34 +48,15 @@ public class EncodingApiCrypto implements ApiCryptoAlgorithm {
     public EncodingApiCrypto() {
     }
 
-    public EncodingApiCrypto(ObjectMapper objectMapper) {
+    public void setObjectMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
-    public EncodingApiCrypto(ObjectMapper objectMapper, IApiRequestBody iApiRequestBody, IApiResponseBody iApiResponseBody) {
-        this.objectMapper = objectMapper;
-        this.iApiRequestBody = iApiRequestBody;
-        this.iApiResponseBody = iApiResponseBody;
-    }
-
-    public EncodingApiCrypto(IApiRequestBody iApiRequestBody, IApiResponseBody iApiResponseBody) {
-        this.iApiRequestBody = iApiRequestBody;
-        this.iApiResponseBody = iApiResponseBody;
-    }
-
-    public EncodingApiCrypto(IApiRequestBody iApiRequestBody) {
+    public void setiApiRequestBody(IApiRequestBody iApiRequestBody) {
         this.iApiRequestBody = iApiRequestBody;
     }
 
-    public EncodingApiCrypto(IApiResponseBody iApiResponseBody) {
-        this.iApiResponseBody = iApiResponseBody;
-    }
-
-
-    public EncodingApiCrypto(ApiCryptoConfig apiCryptoConfig, ObjectMapper objectMapper, IApiRequestBody iApiRequestBody, IApiResponseBody iApiResponseBody) {
-        this.apiCryptoConfig = apiCryptoConfig;
-        this.objectMapper = objectMapper;
-        this.iApiRequestBody = iApiRequestBody;
+    public void setiApiResponseBody(IApiResponseBody iApiResponseBody) {
         this.iApiResponseBody = iApiResponseBody;
     }
 
@@ -103,7 +83,7 @@ public class EncodingApiCrypto implements ApiCryptoAlgorithm {
             encodingType = annotation.encodingType();
         }
 
-        byte[] decode = EncodingUtil.decode(encodingType, apiCryptoBody.getData().getBytes(StandardCharsets.UTF_8));
+        byte[] decode = EncodingUtil.decode(encodingType, apiCryptoBody.getData().getBytes(apiCryptoConfig.getCharset()));
 
         return this.stringToInputStream(decode, httpInputMessage.getHeaders(), logger);
     }
@@ -120,7 +100,7 @@ public class EncodingApiCrypto implements ApiCryptoAlgorithm {
             encodingType = annotation.encodingType();
         }
 
-        String encode = EncodingUtil.encode(encodingType, json.getBytes(StandardCharsets.UTF_8));
+        String encode = EncodingUtil.encode(encodingType, json.getBytes(apiCryptoConfig.getCharset()));
 
         ApiCryptoBody apiCryptoBody = new ApiCryptoBody().setData(encode);
 

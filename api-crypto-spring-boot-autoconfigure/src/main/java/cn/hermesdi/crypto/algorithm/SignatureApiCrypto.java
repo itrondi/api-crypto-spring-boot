@@ -24,7 +24,6 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
@@ -50,24 +49,15 @@ public class SignatureApiCrypto implements ApiCryptoAlgorithm {
     public SignatureApiCrypto() {
     }
 
-    public SignatureApiCrypto(ApiCryptoConfig apiCryptoConfig, ObjectMapper objectMapper, IApiRequestBody iApiRequestBody, IApiResponseBody iApiResponseBody) {
-        this.apiCryptoConfig = apiCryptoConfig;
+    public void setObjectMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
-        this.iApiRequestBody = iApiRequestBody;
-        this.iApiResponseBody = iApiResponseBody;
     }
 
-    public SignatureApiCrypto(ObjectMapper objectMapper, IApiRequestBody iApiRequestBody, IApiResponseBody iApiResponseBody) {
-        this.objectMapper = objectMapper;
-        this.iApiRequestBody = iApiRequestBody;
-        this.iApiResponseBody = iApiResponseBody;
-    }
-
-    public SignatureApiCrypto(IApiRequestBody iApiRequestBody) {
+    public void setiApiRequestBody(IApiRequestBody iApiRequestBody) {
         this.iApiRequestBody = iApiRequestBody;
     }
 
-    public SignatureApiCrypto(IApiResponseBody iApiResponseBody) {
+    public void setiApiResponseBody(IApiResponseBody iApiResponseBody) {
         this.iApiResponseBody = iApiResponseBody;
     }
 
@@ -140,7 +130,7 @@ public class SignatureApiCrypto implements ApiCryptoAlgorithm {
             throw new ApiDecodeException(exceptionType);
         }
 
-        return this.stringToInputStream(apiCryptoBody.getData().getBytes(StandardCharsets.UTF_8), httpInputMessage.getHeaders(), logger);
+        return this.stringToInputStream(apiCryptoBody.getData().getBytes(apiCryptoConfig.getCharset()), httpInputMessage.getHeaders(), logger);
     }
 
     @Override
@@ -181,7 +171,7 @@ public class SignatureApiCrypto implements ApiCryptoAlgorithm {
                     "&timestamp=" + apiCryptoBody.getTimestamp() +
                     "&nonce=" + apiCryptoBody.getNonce() +
                     "&key=" + secretKey;
-            return DigestUtils.md5DigestAsHex(str.getBytes(StandardCharsets.UTF_8));
+            return DigestUtils.md5DigestAsHex(str.getBytes(apiCryptoConfig.getCharset()));
         } catch (Exception e) {
             ApiCryptoExceptionType exceptionType = ApiCryptoExceptionType.SIGNATURE_FAILED;
             logger.error(exceptionType.getMessage() + " ERROR：" + e.getMessage());

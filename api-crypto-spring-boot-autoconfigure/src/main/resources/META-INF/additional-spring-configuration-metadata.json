@@ -18,7 +18,12 @@
     {
       "name": "api.crypto.encoding-type",
       "type": "cn.hermesdi.crypto.constants.EncodingType",
-      "description": "配置全局编码类型."
+      "description": "配置全局加密解密编码类型."
+    },
+    {
+      "name": "api.crypto.charset",
+      "type": "java.nio.charset.Charset",
+      "description": "配置全局加密解密处理字符集."
     }
   ],
   "hints": []

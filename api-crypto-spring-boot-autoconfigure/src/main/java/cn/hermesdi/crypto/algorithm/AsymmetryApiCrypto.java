@@ -1,5 +1,13 @@
 package cn.hermesdi.crypto.algorithm;
 
+import cn.hermesdi.crypto.annotation.asymmetry.AsymmetryCrypto;
+import cn.hermesdi.crypto.config.ApiCryptoConfig;
+import cn.hermesdi.crypto.ov.IApiRequestBody;
+import cn.hermesdi.crypto.ov.IApiResponseBody;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.MediaType;
@@ -9,6 +17,7 @@ import org.springframework.http.server.ServerHttpResponse;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Objects;
 
 /**
  * 非对称性 加密/解密 实现
@@ -17,9 +26,34 @@ import java.lang.reflect.Type;
  * @since 1.0.0.RELEASE
  **/
 public class AsymmetryApiCrypto implements ApiCryptoAlgorithm {
+    private static final Log logger = LogFactory.getLog(AsymmetryApiCrypto.class);
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private ApiCryptoConfig apiCryptoConfig;
+
+    private IApiRequestBody iApiRequestBody;
+
+    private IApiResponseBody iApiResponseBody;
+
+    public void setObjectMapper(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
+    public void setiApiRequestBody(IApiRequestBody iApiRequestBody) {
+        this.iApiRequestBody = iApiRequestBody;
+    }
+
+    public void setiApiResponseBody(IApiResponseBody iApiResponseBody) {
+        this.iApiResponseBody = iApiResponseBody;
+    }
+
     @Override
     public boolean isCanRealize(MethodParameter methodParameter, boolean requestOrResponse) {
-        return false;
+        AsymmetryCrypto annotation = this.getAnnotation(methodParameter, AsymmetryCrypto.class);
+        return !Objects.isNull(annotation);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package cn.hermesdi.crypto.algorithm;
 
+import cn.hermesdi.crypto.config.ApiCryptoConfig;
+import cn.hermesdi.crypto.constants.EncodingType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cn.hermesdi.crypto.annotation.digests.DigestsCrypto;
 import cn.hermesdi.crypto.bean.ApiCryptoBody;
@@ -9,7 +11,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.*;
-import org.bouncycastle.util.encoders.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -31,21 +32,19 @@ public class DigestApiCrypto implements ApiCryptoAlgorithm {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private ApiCryptoConfig apiCryptoConfig;
+
     private IApiResponseBody iApiResponseBody;
 
     public DigestApiCrypto() {
     }
 
-    public DigestApiCrypto(ObjectMapper objectMapper) {
+    public void setObjectMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
-    public DigestApiCrypto(ObjectMapper objectMapper, IApiResponseBody iApiResponseBody) {
-        this.objectMapper = objectMapper;
-        this.iApiResponseBody = iApiResponseBody;
-    }
-
-    public DigestApiCrypto(IApiResponseBody iApiResponseBody) {
+    public void setiApiResponseBody(IApiResponseBody iApiResponseBody) {
         this.iApiResponseBody = iApiResponseBody;
     }
 
@@ -106,10 +105,14 @@ public class DigestApiCrypto implements ApiCryptoAlgorithm {
             }
         }
 
-        byte[] bytes = CryptoUtil.digest(digest, json);
-        json = Hex.toHexString(bytes);
+        EncodingType encodingType = apiCryptoConfig.getEncodingType();
+        if (!annotation.encodingType().equals(EncodingType.DEFAULT)) {
+            encodingType = annotation.encodingType();
+        }
 
-        ApiCryptoBody apiCryptoBody = new ApiCryptoBody().setData(json);
+        String data = CryptoUtil.digest(digest, encodingType, json, apiCryptoConfig.getCharset());
+
+        ApiCryptoBody apiCryptoBody = new ApiCryptoBody().setData(data);
 
         // 使用自定义响应体
         if (iApiResponseBody != null) {

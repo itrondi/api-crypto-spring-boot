@@ -26,7 +26,6 @@ import org.springframework.util.StringUtils;
 import javax.crypto.Cipher;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
@@ -52,24 +51,15 @@ public class SymmetricApiCrypto implements ApiCryptoAlgorithm {
     public SymmetricApiCrypto() {
     }
 
-    public SymmetricApiCrypto(ApiCryptoConfig apiCryptoConfig, ObjectMapper objectMapper, IApiRequestBody iApiRequestBody, IApiResponseBody iApiResponseBody) {
-        this.apiCryptoConfig = apiCryptoConfig;
+    public void setObjectMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
-        this.iApiRequestBody = iApiRequestBody;
-        this.iApiResponseBody = iApiResponseBody;
     }
 
-    public SymmetricApiCrypto(ObjectMapper objectMapper, IApiRequestBody iApiRequestBody, IApiResponseBody iApiResponseBody) {
-        this.objectMapper = objectMapper;
-        this.iApiRequestBody = iApiRequestBody;
-        this.iApiResponseBody = iApiResponseBody;
-    }
-
-    public SymmetricApiCrypto(IApiRequestBody iApiRequestBody) {
+    public void setiApiRequestBody(IApiRequestBody iApiRequestBody) {
         this.iApiRequestBody = iApiRequestBody;
     }
 
-    public SymmetricApiCrypto(IApiResponseBody iApiResponseBody) {
+    public void setiApiResponseBody(IApiResponseBody iApiResponseBody) {
         this.iApiResponseBody = iApiResponseBody;
     }
 
@@ -120,7 +110,8 @@ public class SymmetricApiCrypto implements ApiCryptoAlgorithm {
                     secretKey,
                     apiCryptoBody.getData(),
                     encodingType,
-                    apiCryptoBody.getIv() != null ? apiCryptoBody.getIv() : null
+                    apiCryptoBody.getIv() != null ? apiCryptoBody.getIv() : null,
+                    apiCryptoConfig.getCharset()
             );
 
         } catch (Exception e) {
@@ -135,7 +126,7 @@ public class SymmetricApiCrypto implements ApiCryptoAlgorithm {
             throw new ApiDecodeException(exceptionType);
         }
 
-        return this.stringToInputStream(encryptData.getBytes(StandardCharsets.UTF_8), httpInputMessage.getHeaders(), logger);
+        return this.stringToInputStream(encryptData.getBytes(apiCryptoConfig.getCharset()), httpInputMessage.getHeaders(), logger);
     }
 
     @Override
@@ -171,7 +162,8 @@ public class SymmetricApiCrypto implements ApiCryptoAlgorithm {
                     secretKey,
                     json,
                     encodingType,
-                    iv
+                    iv,
+                    apiCryptoConfig.getCharset()
             );
 
         } catch (Exception e) {
