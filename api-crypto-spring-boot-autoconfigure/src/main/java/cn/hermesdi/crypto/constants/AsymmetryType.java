@@ -11,14 +11,14 @@ public enum AsymmetryType {
     /**
      * ECB 模式
      */
-    RSA_ECB_NoPadding("RSA", "RSA/ECB/NoPadding"),
-    RSA_ECB_PKCS1Padding("RSA", "RSA/ECB/PKCS1Padding"),
+    RSA_ECB_NO_PADDING("RSA", "RSA/ECB/NoPadding"),
+    RSA_ECB_PKCS1_PADDING("RSA", "RSA/ECB/PKCS1Padding"),
 
     /**
      * NONE 模式
      */
-    RSA_NONE_NoPadding("RSA", "RSA/None/NoPadding"),
-    RSA_NONE_PKCS1Padding("RSA", "RSA/None/PKCS1Padding");
+    RSA_NONE_NO_PADDING("RSA", "RSA/None/NoPadding"),
+    RSA_NONE_PKCS1_PADDING("RSA", "RSA/None/PKCS1Padding");
 
     private final String type;
     private final String method;

@@ -27,7 +27,7 @@ public @interface AsymmetryCrypto {
      * @return cn.hermesdi.crypto.constants.AsymmetryType 非对称性 加密/解密 类型枚举
      * @author hermes-di
      **/
-    AsymmetryType type() default AsymmetryType.RSA_ECB_PKCS1Padding;
+    AsymmetryType type() default AsymmetryType.RSA_ECB_PKCS1_PADDING;
 
     /**
      * 公钥加密，配置该项时将优先使用
