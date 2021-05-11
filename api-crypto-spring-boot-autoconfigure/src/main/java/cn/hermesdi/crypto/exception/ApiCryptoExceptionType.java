@@ -80,6 +80,20 @@ public enum ApiCryptoExceptionType {
      */
     REQUIRED_CRYPTO_PARAM("【ApiCrypto】 请先配置加密或解密的必要参数."),
 
+    /**
+     * 请先配置秘钥
+     */
+    NO_SECRET_KEY("【ApiCrypto】 请先配置秘钥."),
+
+    /**
+     * 请先配置秘钥 privateKey.
+     */
+    NO_PRIVATE_KEY("【ApiCrypto】 请先配置秘钥 privateKey."),
+
+    /**
+     * 请先配置秘钥 publicKey.
+     */
+    NO_PUBLIC_KEY("【ApiCrypto】 请先配置秘钥 publicKey."),
 // 签名
 
     /**
@@ -101,7 +115,6 @@ public enum ApiCryptoExceptionType {
      * 请先配置签名必要的参数
      */
     REQUIRED_SIGNATURE_PARAM("【ApiCrypto】 请先配置签名的必要参数.");
-
 
     /**
      * 错误消息

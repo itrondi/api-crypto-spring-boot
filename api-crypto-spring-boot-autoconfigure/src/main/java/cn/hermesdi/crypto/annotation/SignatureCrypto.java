@@ -1,4 +1,4 @@
-package cn.hermesdi.crypto.annotation.signature;
+package cn.hermesdi.crypto.annotation;
 
 import cn.hermesdi.crypto.annotation.ApiCrypto;
 import cn.hermesdi.crypto.constants.CryptoType;

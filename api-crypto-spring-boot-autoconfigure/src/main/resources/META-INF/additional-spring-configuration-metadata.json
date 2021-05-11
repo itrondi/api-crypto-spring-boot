@@ -1,9 +1,15 @@
 {
   "properties": [
     {
-      "name": "api.crypto.symmetric-key",
-      "type": "java.util.HashMap",
+      "name": "api.crypto.symmetric",
+      "type": "java.util.HashMap<java.lang.String,java.lang.String>",
       "description": "配置对称性密钥."
+    },
+    {
+      "name": "api.crypto.asymmetry",
+      "type": "java.util.HashMap<java.lang.String,cn.hermesdi.crypto.config.ApiCryptoConfig.AsymmetryKey>",
+      "description": "配置非对称性密钥.",
+      "sourceType": "cn.hermesdi.crypto.config.ApiCryptoConfig"
     },
     {
       "name": "api.crypto.signature.timeout",
@@ -18,7 +24,8 @@
     {
       "name": "api.crypto.encoding-type",
       "type": "cn.hermesdi.crypto.constants.EncodingType",
-      "description": "配置全局加密解密编码类型."
+      "description": "配置全局加密解密编码类型.",
+      "sourceType": "cn.hermesdi.crypto.constants.EncodingType"
     },
     {
       "name": "api.crypto.charset",

@@ -3,7 +3,7 @@ package cn.hermesdi.crypto.algorithm;
 import cn.hermesdi.crypto.exception.ApiCryptoExceptionType;
 import cn.hermesdi.crypto.exception.ApiEncryptException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import cn.hermesdi.crypto.annotation.signature.SignatureCrypto;
+import cn.hermesdi.crypto.annotation.SignatureCrypto;
 import cn.hermesdi.crypto.bean.ApiCryptoBody;
 import cn.hermesdi.crypto.config.ApiCryptoConfig;
 import cn.hermesdi.crypto.exception.ApiDecodeException;

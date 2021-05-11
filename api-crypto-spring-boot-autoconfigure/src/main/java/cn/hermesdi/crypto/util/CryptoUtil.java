@@ -1,6 +1,7 @@
 package cn.hermesdi.crypto.util;
 
 import cn.hermesdi.crypto.constants.EncodingType;
+import cn.hermesdi.crypto.constants.RSASignatureType;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
@@ -123,6 +124,58 @@ public class CryptoUtil {
         }
 
         return null;
+    }
+
+    /**
+     * 生成 RSA 密钥对
+     *
+     * @param keySize: 密钥长度
+     * @return java.security.KeyPair
+     * @author hermes-di
+     **/
+    public static KeyPair generatorRsaKeyPair(int keySize) throws Exception {
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA", "BC");
+        generator.initialize(keySize);
+        return generator.generateKeyPair();
+    }
+
+    /**
+     * 验证 RSA 签名
+     *
+     * @param rsaSignatureType: 验签方式
+     * @param dataBytes:        数据
+     * @param signatureBytes:   签名
+     * @param publicKeyBytes:   公钥
+     * @return boolean
+     * @author hermes-di
+     * @see RSASignatureType
+     **/
+    public static boolean resSignatureVerify(RSASignatureType rsaSignatureType, byte[] dataBytes, byte[] signatureBytes, byte[] publicKeyBytes) throws Exception {
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA", "BC");
+        PublicKey publicKey = keyFactory.generatePublic(new X509EncodedKeySpec(publicKeyBytes));
+        Signature signature = Signature.getInstance(rsaSignatureType.getType(), "BC");
+        signature.initVerify(publicKey);
+        signature.update(dataBytes);
+        return signature.verify(signatureBytes);
+    }
+
+    /**
+     * RSA 签名
+     *
+     * @param rsaSignatureType: 签名方式
+     * @param dataBytes:        数据
+     * @param privateKeyBytes:  私钥
+     * @return byte[]
+     * @author hermes-di
+     * @see RSASignatureType
+     **/
+    public static byte[] resSignature(RSASignatureType rsaSignatureType, byte[] dataBytes, byte[] privateKeyBytes) throws Exception {
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA", "BC");
+        PrivateKey privateKey = keyFactory.generatePrivate(new PKCS8EncodedKeySpec(privateKeyBytes));
+        Signature signature = Signature.getInstance(rsaSignatureType.getType(), "BC");
+        signature.initSign(privateKey);
+        signature.update(dataBytes);
+        return signature.sign();
     }
 
 }

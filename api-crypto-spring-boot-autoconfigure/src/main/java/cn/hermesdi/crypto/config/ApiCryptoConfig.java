@@ -21,7 +21,13 @@ public class ApiCryptoConfig {
     /**
      * 配置对称性密钥
      */
-    private Map<String, String> symmetricKey = new HashMap<>();
+    private Map<String, String> symmetric = new HashMap<>();
+
+    /**
+     * 配置非对称性密钥
+     */
+    private Map<String, AsymmetryKey> asymmetry = new HashMap<>();
+
     /**
      * 配置数据签名
      */
@@ -38,20 +44,32 @@ public class ApiCryptoConfig {
     private Charset charset = StandardCharsets.UTF_8;
 
 
-    public Signature getSignature() {
-        return signature;
-    }
+    public static class AsymmetryKey {
+        /**
+         * 非对称性 公钥
+         */
+        private String publicKey;
 
-    public void setSignature(Signature signature) {
-        this.signature = signature;
-    }
+        /**
+         * 非对称性 私钥
+         */
+        private String privateKey;
 
-    public Charset getCharset() {
-        return charset;
-    }
+        public String getPublicKey() {
+            return publicKey;
+        }
 
-    public void setCharset(Charset charset) {
-        this.charset = charset;
+        public void setPublicKey(String publicKey) {
+            this.publicKey = publicKey;
+        }
+
+        public String getPrivateKey() {
+            return privateKey;
+        }
+
+        public void setPrivateKey(String privateKey) {
+            this.privateKey = privateKey;
+        }
     }
 
     public static class Signature {
@@ -82,6 +100,30 @@ public class ApiCryptoConfig {
     }
 
 
+    public Map<String, AsymmetryKey> getAsymmetry() {
+        return asymmetry;
+    }
+
+    public void setAsymmetry(Map<String, AsymmetryKey> asymmetry) {
+        this.asymmetry = asymmetry;
+    }
+
+    public Signature getSignature() {
+        return signature;
+    }
+
+    public void setSignature(Signature signature) {
+        this.signature = signature;
+    }
+
+    public Charset getCharset() {
+        return charset;
+    }
+
+    public void setCharset(Charset charset) {
+        this.charset = charset;
+    }
+
     public EncodingType getEncodingType() {
         return encodingType;
     }
@@ -90,11 +132,11 @@ public class ApiCryptoConfig {
         this.encodingType = encodingType;
     }
 
-    public Map<String, String> getSymmetricKey() {
-        return symmetricKey;
+    public Map<String, String> getSymmetric() {
+        return symmetric;
     }
 
-    public void setSymmetricKey(Map<String, String> symmetricKey) {
-        this.symmetricKey = symmetricKey;
+    public void setSymmetric(Map<String, String> symmetric) {
+        this.symmetric = symmetric;
     }
 }

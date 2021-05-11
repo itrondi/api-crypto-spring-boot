@@ -3,7 +3,7 @@ package cn.hermesdi.crypto.algorithm;
 import cn.hermesdi.crypto.config.ApiCryptoConfig;
 import cn.hermesdi.crypto.constants.EncodingType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import cn.hermesdi.crypto.annotation.digests.DigestsCrypto;
+import cn.hermesdi.crypto.annotation.DigestsCrypto;
 import cn.hermesdi.crypto.bean.ApiCryptoBody;
 import cn.hermesdi.crypto.ov.IApiResponseBody;
 import cn.hermesdi.crypto.util.CryptoUtil;

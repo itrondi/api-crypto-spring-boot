@@ -1,6 +1,6 @@
 package cn.hermesdi.crypto.algorithm;
 
-import cn.hermesdi.crypto.annotation.symmetric.SymmetricCrypto;
+import cn.hermesdi.crypto.annotation.SymmetricCrypto;
 import cn.hermesdi.crypto.bean.ApiCryptoBody;
 import cn.hermesdi.crypto.config.ApiCryptoConfig;
 import cn.hermesdi.crypto.constants.EncodingType;
@@ -195,15 +195,15 @@ public class SymmetricApiCrypto implements ApiCryptoAlgorithm {
      * @author hermes-di
      **/
     private String secretKey(SymmetricCrypto annotation) {
-        String secretKey = apiCryptoConfig.getSymmetricKey().get(annotation.type().getType());
+        String secretKey = apiCryptoConfig.getSymmetric().get(annotation.type().getType());
 
         if (StringUtils.hasText(annotation.SecretKey())) {
             secretKey = annotation.SecretKey();
         }
 
         if (!StringUtils.hasText(secretKey)) {
-            ApiCryptoExceptionType exceptionType = ApiCryptoExceptionType.REQUIRED_CRYPTO_PARAM;
-            logger.error(exceptionType.getMessage() + " ERROR：(无效的秘钥,请在配置文件或注解中秘钥配置)");
+            ApiCryptoExceptionType exceptionType = ApiCryptoExceptionType.NO_SECRET_KEY;
+            logger.error(exceptionType.getMessage() + " ERROR：(无效的秘钥,请在配置文件 symmetric 或注解中配置秘钥 secretKey )");
             throw new ApiEncryptException(exceptionType);
         }
         return secretKey;

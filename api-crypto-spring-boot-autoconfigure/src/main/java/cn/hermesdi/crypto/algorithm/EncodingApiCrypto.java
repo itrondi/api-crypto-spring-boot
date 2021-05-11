@@ -2,7 +2,7 @@ package cn.hermesdi.crypto.algorithm;
 
 import cn.hermesdi.crypto.exception.ApiCryptoExceptionType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import cn.hermesdi.crypto.annotation.encoding.EncodingCrypto;
+import cn.hermesdi.crypto.annotation.EncodingCrypto;
 import cn.hermesdi.crypto.bean.ApiCryptoBody;
 import cn.hermesdi.crypto.config.ApiCryptoConfig;
 import cn.hermesdi.crypto.constants.EncodingType;
