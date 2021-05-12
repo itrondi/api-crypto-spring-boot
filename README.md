@@ -31,9 +31,10 @@
 
 #### 非对称性（AsymmetryApiCrypto）:
 
-| 算法 | 模式     | 填充                   |
-| ---- | -------- | ---------------------- |
-| RSA  | ECB/None | NoPadding/PKCS1Padding |
+| 算法 | 模式 | 填充                                                         |
+| ---- | ---- | ------------------------------------------------------------ |
+| RSA  | ECB  | NoPadding/PKCS1Padding/OAEPWithSHA-1AndMGF1Padding/OAEPWithSHA-256AndMGF1Padding |
+| RSA  | None | NoPadding/PKCS1Padding                                       |
 
 #### 签名（SignatureApiCrypto）:
 
@@ -270,6 +271,8 @@ public class SymmetricController {
 ### 自定义解析
 
 ​	可以自定义解析请求响应 body 的格式，以满足不同的场景需求。
+
+
 
 ### 自定义实现模式
 

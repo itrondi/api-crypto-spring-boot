@@ -147,6 +147,9 @@ public interface ApiCryptoAlgorithm {
      * @author hermes-di
      **/
     default String responseBody(Object body, ObjectMapper objectMapper, Log logger) {
+        if (body instanceof String) {
+            return (String) body;
+        }
         // 转成json字符串
         String json;
         try {

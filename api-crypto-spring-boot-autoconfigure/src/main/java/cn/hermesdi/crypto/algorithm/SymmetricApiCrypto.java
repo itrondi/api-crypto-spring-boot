@@ -24,7 +24,6 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.util.StringUtils;
 
 import javax.crypto.Cipher;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Objects;
 
@@ -70,7 +69,7 @@ public class SymmetricApiCrypto implements ApiCryptoAlgorithm {
     }
 
     @Override
-    public HttpInputMessage beforeBodyRead(HttpInputMessage httpInputMessage, MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) throws IOException {
+    public HttpInputMessage beforeBodyRead(HttpInputMessage httpInputMessage, MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
         SymmetricCrypto annotation = this.getAnnotation(methodParameter, SymmetricCrypto.class);
 
         ApiCryptoBody apiCryptoBody = this.requestBody(annotation, httpInputMessage, iApiRequestBody, objectMapper, logger);
@@ -183,7 +182,11 @@ public class SymmetricApiCrypto implements ApiCryptoAlgorithm {
             return iApiResponseBody.responseBody(annotation, apiCryptoBody);
         }
 
-        return apiCryptoBody;
+        if (body instanceof String) {
+            return responseBody(apiCryptoBody, objectMapper, logger);
+        } else {
+            return apiCryptoBody;
+        }
 
     }
 

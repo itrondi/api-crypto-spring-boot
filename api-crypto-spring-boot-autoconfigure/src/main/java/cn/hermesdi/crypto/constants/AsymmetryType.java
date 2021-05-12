@@ -13,6 +13,8 @@ public enum AsymmetryType {
      */
     RSA_ECB_NO_PADDING("RSA", "RSA/ECB/NoPadding"),
     RSA_ECB_PKCS1_PADDING("RSA", "RSA/ECB/PKCS1Padding"),
+    RSA_ECB_OAEPWithSHA1AndMGF1Padding("RSA", "RSA/ECB/OAEPWithSHA-1AndMGF1Padding"),
+    RSA_ECB_OAEPWithSHA256AndMGF1Padding("RSA", "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"),
 
     /**
      * NONE 模式

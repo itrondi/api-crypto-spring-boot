@@ -21,7 +21,6 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Objects;
 
@@ -67,7 +66,7 @@ public class EncodingApiCrypto implements ApiCryptoAlgorithm {
     }
 
     @Override
-    public HttpInputMessage beforeBodyRead(HttpInputMessage httpInputMessage, MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) throws IOException {
+    public HttpInputMessage beforeBodyRead(HttpInputMessage httpInputMessage, MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
         EncodingCrypto annotation = this.getAnnotation(methodParameter, EncodingCrypto.class);
 
         ApiCryptoBody apiCryptoBody = this.requestBody(annotation, httpInputMessage, iApiRequestBody, objectMapper, logger);
@@ -109,6 +108,10 @@ public class EncodingApiCrypto implements ApiCryptoAlgorithm {
             return iApiResponseBody.responseBody(annotation, apiCryptoBody);
         }
 
-        return apiCryptoBody;
+        if (body instanceof String) {
+            return responseBody(apiCryptoBody, objectMapper, logger);
+        } else {
+            return apiCryptoBody;
+        }
     }
 }

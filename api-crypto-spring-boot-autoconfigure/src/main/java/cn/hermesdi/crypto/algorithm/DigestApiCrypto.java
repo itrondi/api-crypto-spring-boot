@@ -119,7 +119,10 @@ public class DigestApiCrypto implements ApiCryptoAlgorithm {
             return iApiResponseBody.responseBody(annotation, apiCryptoBody);
         }
 
-        // 使用默认响应体
-        return this.responseBody(apiCryptoBody, objectMapper, logger);
+        if (body instanceof String) {
+            return responseBody(apiCryptoBody, objectMapper, logger);
+        } else {
+            return apiCryptoBody;
+        }
     }
 }
