@@ -1,4 +1,3 @@
-简体中文 | [English](./README_EN.md)
 # api-crypto-spring-boot
 
 [![](https://img.shields.io/badge/release-1.0.0.RELEASE-red.svg)](http://hermesdi.cn)  [![](https://img.shields.io/badge/JDK-1.8+-8cba05.svg)](http://hermesdi.cn)  [![](https://img.shields.io/badge/author-hermes·di-ff69b4.svg)](http://hermesdi.cn)
@@ -220,7 +219,7 @@ public class ApiCryptoConfiguration {
 
 
 
-例子：[完整dome]()
+例子：[完整dome](https://gitee.com/hermes-di/api-crypto-example)
 
 ```java
 @RestController
@@ -270,15 +269,277 @@ public class SymmetricController {
 
 ### 自定义解析
 
-​	可以自定义解析请求响应 body 的格式，以满足不同的场景需求。
+​	可以自定义解析请求响应 body 的格式，以满足不同的场景需求。下面以注册对称性[算法Bean](#4.注册 实现模式(算法) Bean)为例：
+
+```java
+@Configuration
+public class ApiCryptoConfiguration {
+    
+    /**
+     * 对称性加密解密 Bean
+     */
+    @Bean
+    public ApiCryptoAlgorithm symmetricApiCrypto() {
+        SymmetricApiCrypto symmetricApiCrypto = new SymmetricApiCrypto();
+
+        // 自定义请求内容解析，格式例如：数据&偏移量
+        symmetricApiCrypto.setiApiRequestBody((annotation, inputStream) -> {
+            try {
+                // 转为字符串
+                byte[] byteArr = new byte[inputStream.available()];
+                inputStream.read(byteArr);
+                String str = new String(byteArr);
+                // 按照'&'符号分割
+                String[] strings = str.split("&");
+                // 封装数据
+                return new ApiCryptoBody().setData(strings[0]).setIv(strings[1]);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        });
+
+
+        // 自定义响应内容格式，格式例如：数据&偏移量
+        symmetricApiCrypto.setiApiResponseBody((annotation, cryptoBody) -> {
+
+            String data = cryptoBody.getData();
+            String iv = cryptoBody.getIv();
+
+            return data + "&" + iv;
+
+        });
+
+        return symmetricApiCrypto;
+    }
+}
+```
+
+```java
+@RestController
+public class SymmetricController {
+    @Resource
+    ObjectMapper objectMapper;
+
+    // 非对称加密、解密
+    @SymmetricCrypto(type = SymmetricType.AES_CFB_PKCS7_PADDING)
+    @PostMapping("/symmetric")
+    public String symmetric(@RequestBody TestBean req) throws JsonProcessingException {
+        System.out.println(req.toString());
+
+        TestBean testBean = new TestBean();
+        testBean.setAnInt(0);
+        testBean.setInteger(1);
+        testBean.setString("test string");
+        testBean.setStringList(Collections.singletonList("list"));
+        testBean.setObjectMap(Collections.singletonMap("test", "map"));
+
+        return objectMapper.writeValueAsString(testBean);
+    }
+}
+```
+
+请求body为：数据&偏移量格式
+
+```
+1KFHb7m5f0VHCupyZmNBSmV0PpgDAmrMvmiM9bwylB1BfoXHptXbZVvtZhtuPWFdJATI1YLxxRl/102DhhO1tcKGpcnIxvpXQaXDsTz+HgU9lY2zEqfv2pvx0qieY8WN&L46gdVx6X934cpm6
+```
+
+响应body为：数据&偏移量格式
+
+```
+a9joYmcuIPEiIlGdTMhDEE+7LxPzo1DNMBlmDXGeBcG+I8qFRgdoQtuM7i+QHeNdYtz8CBUIMiC6f3nW10xW8Ok16GlBrO7ubt7cLIi/dkzhlD8Ita46ywyxJB2CeCxu&1Ed3g5Z9v6B3tpZ2
+```
 
 
 
 ### 自定义实现模式
 
-​	可以自定义实现模式，以满足不同的场景需求。
+自定义实现一种模式，交互数据&md5(交互数据+盐)
+
+例如：
+
+要传输的数据是 ：abc123abc
+
+盐(salt)是  : 123456
+
+最后传输数据是 : abc123abc&3bdb146d4faea7d09c0d27ec9d36cbee
+
+这样子就可以保证数据传输安全不被篡改了。
+
+#### 自定义一个执行注解
+
+```java
+@Target({ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface CustomCrypto {
+    /**
+     * 是否请求体解密
+     */
+    boolean isDecryption();
+
+    /**
+     * 是否响应体加密
+     */
+    boolean isEncryption();
+    /**
+     * 加密的盐
+     */
+    String salt();
+}
+```
+
+#### 自定义一个实现算法
+
+```java
+public class CustomApiCrypto implements ApiCryptoAlgorithm {
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private static final Log logger = LogFactory.getLog(CustomApiCrypto.class);
+
+    /**
+     * 处理自定义 加密/解密注解 或 其他方式
+     *
+     * @param methodParameter:   方法参数
+     * @param requestOrResponse: 请求还是响应，true请求，false响应
+     * @return boolean 返回 true 将执行下面两个对应的方法，false则忽略
+     **/
+    @Override
+    public boolean isCanRealize(MethodParameter methodParameter, boolean requestOrResponse) {
+        // 获取执行 方法或类上的指定注解（注解在类上并且是被继承的无效）
+        CustomCrypto annotation = this.getAnnotation(methodParameter, CustomCrypto.class);
+        // 是否请求解密
+        if (annotation.isDecryption() && !requestOrResponse) {
+            return true;
+        }
+        // 是否响应加密
+        if (annotation.isEncryption() && !requestOrResponse) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 当 isCanRealize 返回true，并且为请求时执行
+     *
+     * @param httpInputMessage: 请求内容
+     * @param methodParameter:  执行方法参数
+     * @param type:             目标类型
+     * @param aClass:           消息转换器
+     * @return org.springframework.http.HttpInputMessage 请求的数据输入流
+     **/
+    @Override
+    public HttpInputMessage beforeBodyRead(HttpInputMessage httpInputMessage, MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) throws IOException {
+        // 请求内容
+        byte[] byteArr = new byte[httpInputMessage.getBody().available()];
+        httpInputMessage.getBody().read(byteArr);
+        String str = new String(byteArr);
+        // 拆分出数据和签名
+        String[] strings = str.split("&");
+        String data = strings[0];
+        String md5 = strings[1];
+        // 获取盐
+        CustomCrypto annotation = this.getAnnotation(methodParameter, CustomCrypto.class);
+        String salt = annotation.salt();
+        // md5加密一下
+        String test = DigestUtils.md5DigestAsHex((data + salt).getBytes(StandardCharsets.UTF_8));
+        // 对比原来的md5加密是否一致，不一致说明被修改过请求体了
+        if (!test.equals(md5)) {
+            throw new ApiDecodeException("验证失败");
+        }
+
+        return this.stringToInputStream(data.getBytes(StandardCharsets.UTF_8), httpInputMessage.getHeaders(), logger);
+    }
+
+    /**
+     * 当 isCanRealize 返回 true，并且为响应时执行
+     *
+     * @param body:               方法执行后返回的参数
+     * @param methodParameter:    方法执行参数
+     * @param mediaType:          数据类型，json，text，html等等
+     * @param aClass:             消息转换器
+     * @param serverHttpRequest:  请求
+     * @param serverHttpResponse: 响应
+     * @return java.lang.Object   最终响应内容
+     **/
+    @Override
+    public Object responseBefore(Object body, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
+        CustomCrypto annotation = this.getAnnotation(methodParameter, CustomCrypto.class);
+
+        // 如果方法返回内容是字符串
+        if (body instanceof String) {
+            // md5加密一下
+            String md5 = DigestUtils.md5DigestAsHex((body + annotation.salt()).getBytes(StandardCharsets.UTF_8));
+            return body + "&" + md5;
+        }
+
+        // 如果方法返回内容是对象
+        String json = null;
+        try {
+            json = objectMapper.writeValueAsString(body);
+        } catch (JsonProcessingException e) {
+            throw new ApiEncryptException("转json字符串失败");
+        }
+
+        // md5加密一下
+        String md5 = DigestUtils.md5DigestAsHex((json + annotation.salt()).getBytes(StandardCharsets.UTF_8));
+        return body + "&" + md5;
+    }
+}
+```
+
+#### 注册自定义实现模式
+
+```java
+@Configuration
+public class ApiCryptoConfiguration {
+    /**
+     * 自定义模式 Bean
+     */
+    @Bean
+    public ApiCryptoAlgorithm customApiCrypto() {
+        return new CustomApiCrypto();
+    }
+}
+```
+
+#### 在Controller使用
+
+```java
+@RestController
+public class CustomController {
+
+    @CustomCrypto(isDecryption = true, isEncryption = true, salt = "123456")
+    @PostMapping("/custom")
+    public String custom(@RequestBody String text) {
+        System.out.println(text); // abc123abc
+
+        return "ABC123456";
+    }
+}
+```
+
+请求body为：数据&md5
+
+```
+abc123abc&3bdb146d4faea7d09c0d27ec9d36cbee
+```
+
+响应body为：数据&md5
+
+```
+ABC123456&f929eb0889e53b3893600ba29f039ced
+```
 
 
+
+## 常见问题
+
+- 无法自动解密请求体加密内容
+  - 加上 `@RequestBody` 即可；
+- 多个算法注解同时使用时顺序问题
+  - 当同时存在 **两个注解作用于一个方法或者类上和方法上都有注解**  的情况下，不同注解按照注册实现Bean的顺序，相同注解则按照方法优先于类的原则；
 
 
 
