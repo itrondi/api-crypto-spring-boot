@@ -89,7 +89,7 @@ api:
 
     #3. 使用非对称性加密解密 (@Asymmetry) 注解时，这里全局配置（根据使用的算法选择配置） 或 注解中配置
     asymmetry:
-      RAS:
+      RSA:
         #公钥
         public-key: xxxx
         #私钥
